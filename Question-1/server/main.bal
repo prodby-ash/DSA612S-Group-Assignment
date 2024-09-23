@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/time;
 
 type Programme record {
     readonly string programmeCode;
@@ -78,6 +79,20 @@ service / on new http:Listener(9000) {
         return programmeByFaculty.toArray();
     }
 
-// Retrieve all programmes that are due for review (registered 5+ years ago)
+    resource function get retrieveAllProgrammesDueForReview() returns Programme[] {
+
+    time:Date currentDate = { year: 2024, month: 9, day: 20 };
+    
+    // Calculate the date 5 years ago
+    time:Date fiveYearsAgo = { year: currentDate.year - 5, month: currentDate.month, day: currentDate.day };
+
+    // Retrieve programmes due for review
+    table<Programme> programmesDueForReview = from var programme in programmeTable
+        where time:parse(programme.registrationDate) <= fiveYearsAgo // error here
+        select programme;
+
+    return programmesDueForReview.toArray();
+}
+
 
 }

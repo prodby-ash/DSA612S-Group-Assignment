@@ -1,0 +1,163 @@
+openapi: 3.0.0
+info:
+  title: Programme Development API
+  version: 1.0.0
+  description: API for managing programme development and review workflow at Namibia University of Science and Technology.
+servers:
+  - url: http://localhost:9000
+paths:
+  /programmes/addProgramme:
+    post:
+      summary: Add a new programme
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Programme'
+      responses:
+        '201':
+          description: Programme added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Bad request
+
+  /programmes/listProgrammes:
+    get:
+      summary: Retrieve all programmes
+      responses:
+        '200':
+          description: List of programmes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Programme'
+
+  /programmes/updateProgramme/{code}:
+    put:
+      summary: Update an existing programme
+      parameters:
+        - name: code
+          in: path
+          required: true
+          description: Programme code
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Programme'
+      responses:
+        '200':
+          description: Programme updated successfully
+        '404':
+          description: Programme not found
+
+  /programmes/programmeDetails/{code}:
+    get:
+      summary: Retrieve details of a specific programme
+      parameters:
+        - name: code
+          in: path
+          required: true
+          description: Programme code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Programme details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Programme'
+        '404':
+          description: Programme not found
+
+  /programmes/deleteProgramme/{code}:
+    delete:
+      summary: Delete a programme
+      parameters:
+        - name: code
+          in: path
+          required: true
+          description: Programme code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Programme deleted successfully
+        '404':
+          description: Programme not found
+
+  /programmes/programmesDueForReview:
+    get:
+      summary: Retrieve programmes due for review
+      responses:
+        '200':
+          description: List of programmes due for review
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Programme'
+
+  /programmes/programmesByFaculty/{faculty}:
+    get:
+      summary: Retrieve programmes by faculty
+      parameters:
+        - name: faculty
+          in: path
+          required: true
+          description: Faculty name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of programmes in the specified faculty
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Programme'
+
+components:
+  schemas:
+    Programme:
+      type: object
+      properties:
+        code:
+          type: string
+        nqfLevel:
+          type: string
+        faculty:
+          type: string
+        department:
+          type: string
+        title:
+          type: string
+        registrationDate:
+          type: string
+          format: date
+        courses:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              code:
+                type: string
+              nqfLevel:
+                type: integer
