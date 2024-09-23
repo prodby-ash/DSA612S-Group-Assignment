@@ -3,7 +3,7 @@ import ballerina/io;
 
 public function main() returns error? {
     // Define the base URL for the server
-    string baseUrl = "http://localhost:9000/programmeService";
+    string baseUrl = "http://localhost:9000";
 
     // Create an HTTP client
     http:Client programmeClient = check new (baseUrl);
@@ -57,12 +57,19 @@ function addProgramme(http:Client Client) returns error? {
 function retrieveAllProgrammes(http:Client Client) returns error? {
     http:Response response = check Client->get("/retrieveAllProgrammes");
     json payload = check response.getJsonPayload();
-    Programme programme = check payload.cloneWithType(Programme);
-    io:println(programme.programmeCode);
-    //foreach Programme Programmes in programme {
-    //    printProgrammeDetails(programme);
-    //}
+
+    // Print the payload to verify its structure
+    io:println("Received payload: ", payload);
+
+    // Ensure the payload is an array of JSON objects
+    Programme[] programmes = check payload.cloneWithType(Programme[]);
+
+    // Iterate over the array of programmes and print their details
+    foreach Programme programme in programmes {
+        printProgrammeDetails(programme);
+    }
 }
+
 
 // Function to update a programme by code 
 function updateProgramme(http:Client Client) returns error? {
@@ -108,11 +115,10 @@ function retrieveProgrammesByFaculty(http:Client Client) returns error? {
     string faculty = io:readln("Enter faculty name: ");
     http:Response response = check Client->get("/retrieveAllProgrammesByFaculty/" + faculty);
     json payload = check response.getJsonPayload();
-    Programme programme = check payload.cloneWithType(Programme);
-    io:println(programme.programmeCode);
-    //foreach Programme programme in programmes {
-    //    printProgrammeDetails(programme);
-    //}
+    Programme[] programmes = check payload.cloneWithType(Programme[]);
+    foreach Programme programme in programmes {
+        printProgrammeDetails(programme);
+    }
 }
 
 // Helper function to print programme details
