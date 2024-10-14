@@ -1,0 +1,40 @@
+import ballerina/kafka;
+import ballerina/log;
+import ballerina/sql;
+import ballerinax/mongodb.driver as mongo;
+
+// Kafka configurations
+kafka:ConsumerConfig consumerConfig = {
+    bootstrapServers: "localhost:9092",
+    groupId: "logistics_group"
+};
+
+// Initialize Kafka consumer
+kafka:Consumer consumer = check new (consumerConfig, ["logistics_topic"]);
+
+listener kafka:Listener logisticsListener = new(consumerConfig, ["logistics_topic"]);
+
+// MongoDB configurations
+mongo:Client mongoClient = check new ("mongodb://localhost:27017", "logistics_db");
+
+// MongoDB collection
+mongo:Collection shipmentCollection = check mongoClient->getCollection("shipments");
+
+// Service for handling logistics requests
+service /logistics on logisticsListener {
+    
+    resource function onMessage(kafka:ConsumerRecord[] messages) returns error? {
+        foreach var message in messages {
+            log:printInfo("Received message: " + message.value);
+            // Parse the request and store it in MongoDB
+            json request = check 'json:fromString(message.value);
+            var result = shipmentCollection->insert(request);
+            
+            if result is error {
+                log:printError("Failed to save shipment", result);
+            } else {
+                log:printInfo("Shipment saved successfully");
+            }
+        }
+    }
+}
