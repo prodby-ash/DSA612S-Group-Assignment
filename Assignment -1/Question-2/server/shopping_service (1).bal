@@ -1,4 +1,4 @@
-import ballerina/grpc;
+f import ballerina/grpc;
 import ballerina/io;
 import generated.shopping_pb as shopping; // Import the generated gRPC code
 

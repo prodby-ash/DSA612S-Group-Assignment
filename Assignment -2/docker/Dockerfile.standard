@@ -1,0 +1,6 @@
+FROM ballerina/ballerina:latest
+WORKDIR /app
+COPY ../services/standard_delivery_service.bal /app/
+RUN bal build standard_delivery_service.bal
+EXPOSE 8082
+CMD ["bal", "run", "standard_delivery_service.bal"]
